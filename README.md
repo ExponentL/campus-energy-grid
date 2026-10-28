@@ -1,4 +1,4 @@
-# Campus Energy Command Center (Multi-Building MILP Optimization System)
+# OptiGrid (Multi-Building MILP Optimization System)
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -129,7 +129,7 @@ In compliance with engineering transparency standards:
 
 ---
 
-## 7. High-Impact Live Demo Talking Points for Judges
+## 7. High-Impact Live Demo Talking Points 
 
 When demonstrating the Campus Energy Command Center to technical judges or evaluation panels:
 
