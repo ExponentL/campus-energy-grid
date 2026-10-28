@@ -4,9 +4,9 @@ showErrorDetails = true
 
 [theme]
 primaryColor = "#0F766E"
-backgroundColor = "#F4F6F8"
+backgroundColor = "#FAFAF9"
 secondaryBackgroundColor = "#FFFFFF"
-textColor = "#0F172A"
+textColor = "#1C1917"
 font = "sans serif"
 
 [server]
@@ -16,4 +16,3 @@ enableXsrfProtection = true
 
 [browser]
 gatherUsageStats = false
-

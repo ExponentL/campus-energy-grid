@@ -75,7 +75,11 @@ def solve_campus_milp(
         for t in hours
     }
     batt_soc = {
-        t: LpVariable(f"batt_soc_{t}", lowBound=cfg.battery_min_soc_kwh, upBound=cfg.battery_max_soc_kwh)
+        t: LpVariable(
+            f"batt_soc_{t}",
+            lowBound=cfg.battery_min_soc_kwh - 0.005,
+            upBound=cfg.battery_max_soc_kwh + 0.005,
+        )
         for t in hours
     }
 
@@ -178,11 +182,13 @@ def solve_campus_milp(
     # -------------------------------------------------------------------------
     if frozen_hours > 0 and previous_plan is not None:
         for t in range(min(frozen_hours, n_hours)):
-            prob += grid_import[t] == previous_plan.grid_import[t], f"Lock_Grid_{t}"
+            prob += grid_import[t] >= previous_plan.grid_import[t] - 0.01, f"Lock_Grid_Min_{t}"
+            prob += grid_import[t] <= previous_plan.grid_import[t] + 0.01, f"Lock_Grid_Max_{t}"
             prob += solar_used[t] == previous_plan.solar_used[t], f"Lock_Solar_{t}"
             prob += batt_charge[t] == previous_plan.batt_charge[t], f"Lock_Charge_{t}"
             prob += batt_discharge[t] == previous_plan.batt_discharge[t], f"Lock_Discharge_{t}"
-            prob += batt_soc[t] == previous_plan.batt_soc[t], f"Lock_SOC_{t}"
+            prob += batt_soc[t] >= previous_plan.batt_soc[t] - 0.002, f"Lock_SOC_Min_{t}"
+            prob += batt_soc[t] <= previous_plan.batt_soc[t] + 0.002, f"Lock_SOC_Max_{t}"
             prob += ev_kw[t] == previous_plan.ev_kw[t], f"Lock_EV_{t}"
             prob += wh_morn_kw[t] == previous_plan.wh_morn_kw[t], f"Lock_WHMorn_{t}"
             prob += wh_eve_kw[t] == previous_plan.wh_eve_kw[t], f"Lock_WHEve_{t}"
@@ -542,3 +548,20 @@ def reoptimize(
     )
 
     return reoptimized_plan, explanation
+
+
+def solve_campus_schedule(
+    scenario: ScenarioData,
+    lock_before_hour: int = 0,
+    frozen_hours: Optional[int] = None,
+    previous_plan: Optional[ScheduleResult] = None,
+    locked_schedule: Optional[Any] = None,
+    **kwargs,
+) -> ScheduleResult:
+    """
+    Standard interface adapter for solve_campus_milp.
+    Supports lock_before_hour and previous_plan / locked_schedule.
+    """
+    freeze = frozen_hours if frozen_hours is not None else lock_before_hour
+    plan = previous_plan if previous_plan is not None else locked_schedule
+    return solve_campus_milp(scenario=scenario, frozen_hours=freeze, previous_plan=plan)
